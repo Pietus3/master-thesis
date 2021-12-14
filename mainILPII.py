@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from math import log
 
 from pulp import LpMaximize, LpProblem, LpStatus, lpSum, LpVariable
+from pulp import PULP_CBC_CMD
 
 STATIC_VARIABLEQOS = 3
 
@@ -15,7 +16,6 @@ STATIC_VARIABLEUTILAZATION = 6
 
 with open("readme.txt", "rb") as fp:   # Unpickling
     taskSets = pickle.load(fp)
-
 
 evaluation = []
 
@@ -71,20 +71,24 @@ for taskSet in taskSets:
         coord = t[STATIC_VARIABLEID].split("t")
         modesVariable.append(coord)
         modesVisit.append(t)
-
         model += lpSum([xVariable[int(modesVariable[i][0])][int(modesVariable[i][1])] * modesVisit[i][STATIC_VARIABLEUTILAZATION] for i in range(0,len(modesVisit))]) <=1
 
-
-    status  =model.solve()
+    status  =model.solve(PULP_CBC_CMD(msg=False))
 
     elapsed_time = time.perf_counter_ns() - timingStart
 
-    evaluation.append((model.objective.value(),elapsed_time))
+    countTask = len(taskSet)
 
-#print(evaluation)
-testList2 = [(elem1, elem2) for elem1, elem2 in evaluation]
+    countMode = sum([len(task) for task in taskSet])
 
-print(testList2)
+    evaluation.append((model.objective.value(),elapsed_time,countTask,countMode))
+
+testList2 = [(elem4, elem2) for elem1, elem2, elem3, elem4 in evaluation]
+
+testList3 = [(elem4, elem1) for elem1, elem2, elem3, elem4 in evaluation]
 
 plt.scatter(*zip(*testList2))
+plt.show()
+
+plt.scatter(*zip(*testList3))
 plt.show()
