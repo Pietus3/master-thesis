@@ -20,6 +20,8 @@ with open("readme.txt", "rb") as fp:   # Unpickling
 evaluation = []
 
 for taskSet in taskSets:
+
+
     timingStart = time.perf_counter_ns()
 
     model = LpProblem(name="small-problem", sense=LpMaximize)
@@ -54,24 +56,18 @@ for taskSet in taskSets:
         model += lpSum(xVariable[i][k] for k in range(0,len(t)))==1
         i = i+1
 
-    listOfALLModes = []
-
-    for task in taskSet:
-        for k in task:
-            listOfALLModes.append(k)
-
-    listOfALLModes.sort(key=lambda x: x[STATIC_VARIABLEPRIO],reverse = True)
-
 
     modesVisit = []
     modesVariable = []
 
-    for t in listOfALLModes:
-        #p = values[t]
-        coord = t[STATIC_VARIABLEID].split("t")
-        modesVariable.append(coord)
-        modesVisit.append(t)
-        model += lpSum([xVariable[int(modesVariable[i][0])][int(modesVariable[i][1])] * modesVisit[i][STATIC_VARIABLEUTILAZATION] for i in range(0,len(modesVisit))]) <=1
+    for task in taskSet:
+        for mode in task:
+            coord = mode[STATIC_VARIABLEID].split("t")
+            modesVariable.append(coord)
+            modesVisit.append(mode)
+            model += lpSum([xVariable[int(modesVariable[i][0])][int(modesVariable[i][1])] * modesVisit[i][STATIC_VARIABLEUTILAZATION] for i in range(0,len(modesVisit))]) <=1
+
+
 
     status  =model.solve(PULP_CBC_CMD(msg=False))
 
@@ -81,11 +77,16 @@ for taskSet in taskSets:
 
     countMode = sum([len(task) for task in taskSet])
 
-    evaluation.append((model.objective.value(),elapsed_time,countTask,countMode))
+    evaluation.append((model.objective.value(),elapsed_time/1000,countTask,countMode,status))
 
-testList2 = [(elem4, elem2) for elem1, elem2, elem3, elem4 in evaluation]
+testList2 =[]
+testList3 = []
 
-testList3 = [(elem4, elem1) for elem1, elem2, elem3, elem4 in evaluation]
+for elem1, elem2, elem3, elem4, elem5 in evaluation:
+    if elem5 == 1:
+        testList2.append((elem4, elem2)) 
+        testList3.append((elem4, elem1))
+
 
 plt.scatter(*zip(*testList2))
 plt.show()

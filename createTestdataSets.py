@@ -80,8 +80,9 @@ def createTestdata(intTasks,intModes, intQoS, floatWCET, maxPrio):
         ranModes = random.randint(1,intModes)
 
         for i in range(0,ranModes):
-            relDeadline =random.uniform(0,1)
-            mode= Mode(str(k)+"t"+str(i),round(random.uniform(0,floatWCET),3),round(relDeadline,3),round(relDeadline,3),random.randint(0,intQoS),random.randint(0,maxPrio))
+            wcet = round(random.uniform(0,floatWCET),3)
+            relDeadline =random.uniform(0,wcet)
+            mode= Mode(str(k)+"t"+str(i),wcet,round(relDeadline,3),round(relDeadline,3),random.randint(0,intQoS),random.randint(0,maxPrio))
             modes.append(mode)
         
         tasks.append(Task(k,modes))

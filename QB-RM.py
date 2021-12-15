@@ -16,14 +16,6 @@ def qbresolve(values):
     
     summeQuadrat = summeQuadrat - Ua*Ua
 
-    #zwischenergebnis1 = 2*summe
-
-    #zwischenergebnis2 = 1/2*summe*summe
-
-    #zwischenergebnis3 = 1/2*summeQuadrat
-
-    #pruefe = 1-2*summe+ 0.5 * summe*summe+ 0.5 * summeQuadrat
-
     value = (Ua <= 1-2*summe+ 0.5 * summe*summe+ 0.5 * summeQuadrat)
 
     print("QB-RM?:" + str(value))
