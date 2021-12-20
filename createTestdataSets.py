@@ -1,5 +1,6 @@
 import random
 import pickle
+from typing import Counter
 
 class Mode:
     
@@ -73,27 +74,104 @@ class TaskSet:
         return returnValue
 
 
-def createTestdata(intTasks,intModes, intQoS, floatWCET, maxPrio):
+def createTestdata(cntTask,intModes, intQoS, floatWCET, maxPrio):
     tasks = []
-    for k in range(0,random.randint(1,intTasks)):
+    for k in cntTask:
         modes = []
         ranModes = random.randint(1,intModes)
 
         for i in range(0,ranModes):
-            wcet = round(random.uniform(0,floatWCET),3)
-            relDeadline =random.uniform(0,wcet)
-            mode= Mode(str(k)+"t"+str(i),wcet,round(relDeadline,3),round(relDeadline,3),random.randint(0,intQoS),random.randint(0,maxPrio))
+            wcet = round(random.uniform(0.001,floatWCET),3)
+            relDeadline =round(random.uniform(wcet,1),3)
+            mode= Mode(str(k)+"t"+str(i),wcet,relDeadline,relDeadline,random.randint(0,intQoS),random.randint(0,maxPrio))
             modes.append(mode)
         
         tasks.append(Task(k,modes))
     
     return TaskSet(tasks)
 
+def createTestdataFixedNumberTask(cntTask,intModes, intQoS, floatWCET, maxPrio):
+    tasks = []
+    for k in range(0,cntTask):
+        
+        indCount = 1
+        innerTasks =[]
+        for i in range(0,intModes):
+            modes = []
+            for k in range(0,indCount):
+                wcet = round(random.uniform(0.001,floatWCET),3)
+                relDeadline =round(random.uniform(wcet,1),3)
+                mode= Mode(str(k)+"t"+str(i),wcet,relDeadline,relDeadline,random.randint(0,intQoS),random.randint(0,maxPrio))
+                modes.append(mode)
+            indCount= indCount +1
+            innerTasks.append(modes)
+        tasks.append(innerTasks)
+    
+    #print(tasks)
+
+    return tasks
+
+  #  taskSet = []
+
+#    for taskComb in tasks:
+#        for modeCount in range(0,len(taskComb)):
+#            print(taskComb[modeCount])
+
+        #print(taskComb)
+#        print("NEW TASK")
+
+     #   taskSet.append(Task(len(modes)modes))
+
+def rekursiveCreationOfTestData(index,list,data):
+    returnValue = []
+    print("Startzustand des Returnvalues:")
+
+    if len(list) == 0:
+        #print(data[0])
+        print("Initialisierung")
+        for x in data[0]:
+            taskList = [x]
+            returnValue.append(taskList)
+            
+    else:
+        for listElement in list:
+            for dataElement in data[index]:
+                tmp = listElement[:]
+                tmp.append(dataElement)
+                returnValue.append(tmp)
+
+    if index == len(data)-1:
+        return list
+    else:
+        print("Rekursion")
+        return rekursiveCreationOfTestData(index+1,returnValue,data)
+    
+
+
+   # testSet.printTask()
+  #  print(test[0])
+
+
+def createFixedSet(cntTask,intModes, intQoS, floatWCET, maxPrio):
+    testTasks = createTestdataFixedNumberTask(cntTask,intModes,intQoS,floatWCET,maxPrio)
+    testList = []
+
+    testSet =rekursiveCreationOfTestData(0,testList,testTasks)
+
+    finalesSet = []
+
+    for test in testSet:
+        testSet =[]
+        for task in test:
+            finalesSet.append(Task(len(task),task))
+
+    return TaskSet(finalesSet)
+
 
 taskSets = []
 
 for i in range(0,20):
-    taskSets.append(createTestdata(5,5,15,0.6,7).printTaskSetFormat())
+    taskSets.append(createFixedSet(5,5,15,0.6,7).printTaskSetFormat())
 
-with open('readme.txt', 'wb') as f:
+with open('testSets.test', 'wb') as f:
     pickle.dump(taskSets,f)

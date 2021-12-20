@@ -14,7 +14,7 @@ STATIC_VARIABLEID = 5
 
 STATIC_VARIABLEUTILAZATION = 6
 
-with open("readme.txt", "rb") as fp:   # Unpickling
+with open("testSets.test", "rb") as fp:   # Unpickling
     taskSets = pickle.load(fp)
 
 evaluation = []
@@ -61,8 +61,10 @@ for taskSet in taskSets:
     modesVariable = []
 
     for task in taskSet:
+        #print(task)
         for mode in task:
-            coord = mode[STATIC_VARIABLEID].split("t")
+            print(mode)
+            coord = mode[STATIC_VARIABLEID].split("t") 
             modesVariable.append(coord)
             modesVisit.append(mode)
             model += lpSum([xVariable[int(modesVariable[i][0])][int(modesVariable[i][1])] * modesVisit[i][STATIC_VARIABLEUTILAZATION] for i in range(0,len(modesVisit))]) <=1
