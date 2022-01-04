@@ -1,5 +1,7 @@
+import logging
+from re import split
 from TaskClasses import Mode
-from MultiModeChoice import ILP
+from MultiModeChoice import ILP,Greedy
 
 
 class EventBasedSimulator:
@@ -13,12 +15,36 @@ class EventBasedSimulator:
         self.eventList = events
         self.runningJob = None
         self.timer = 0
+        self.SolverGreedy = True
+
+    def executeModeChoice(self,greedy):
+        if greedy:
+            Solver = Greedy(self.activeTasks)
+        else:
+            Solver= ILP(self.activeTasks)
+
+       # print("PRE ALGO")
+       # for element in self.activeTasks:
+       #     element.printTask()
+
+        chosenModes = Solver.generate()
+
+       # print("AFTER ALGO")
+       # for element in self.activeTasks:
+       #     element.printTask()
+        
+
+        for id in chosenModes:
+            splittedID = id.split("|")
+            self.taskList[int(splittedID[0])].activeMode = int(splittedID[1])
 
     def initilizeSimulator(self):
-        print("INIT")
+        logging.info("INITILAZATION OF THE SIMULATOR")
 
         self.activeTasks = [task for task in self.taskList if task.isActive]
         self.passiveTasks = [task for task in self.taskList if not task.isActive]
+
+        self.executeModeChoice(self.SolverGreedy)
 
         self.readyList = [task.getActiveMode() for task in self.taskList if task.getActiveMode().rdyTime <= self.timer]
         self.blockedList = [task.getActiveMode() for task in self.taskList if task.getActiveMode().rdyTime > self.timer]
@@ -26,13 +52,10 @@ class EventBasedSimulator:
         self.readyList = sorted(self.readyList, key=lambda x: x.prior,reverse= True)
         self.blockedList = sorted(self.blockedList, key=lambda x: x.prior)
 
-       # Test = ILP(self.activeTasks)
-       # Test.generate()
-
         self.newRunningJob()
 
     def newRunningJob(self):
-        print("NEW RUNNING JOB")
+        logging.info("NEW RUNNING JOB")
     
         if self.readyList:
             newRunningJob = self.readyList.pop(0)
@@ -40,13 +63,17 @@ class EventBasedSimulator:
             #IF Abfrage für den Fall das Task vorher verdrängt wurde, ansonsten zuviele Following Jobs
             
             if not self.runningJob.createdFollowingJob:
-                self.blockedList.append(Mode(newRunningJob.id,newRunningJob.wcet,
-                    newRunningJob.interArrival,newRunningJob.relDeadline,
-                    newRunningJob.qos,newRunningJob.prior,self.timer+newRunningJob.interArrival))
+                newMode = self.taskList[newRunningJob.taskID].getActiveMode()
+                newModeInstance = Mode(newMode.id,newMode.wcet,
+                    newMode.interArrival,newMode.relDeadline,
+                    newMode.qos,newMode.prior,0)
+                newModeInstance.rdyTime = newRunningJob.rdyTime + newRunningJob.interArrival
+
+                self.blockedList.append(newModeInstance)
                 self.runningJob.createdFollowingJob = True
                 self.blockedList = sorted(self.blockedList, key=lambda x: x.rdyTime)
         else:
-            print("READYLIST EMPTY" + str(len(self.readyList)))
+            logging.info("READYLIST EMPTY" + str(len(self.readyList)))
             self.runningJob = None
 
     def higherPrioAwaked(self):
@@ -64,9 +91,9 @@ class EventBasedSimulator:
 
     def jobProgress(self):
         if self.runningJob is None:
-            print("NOTHING TO RUN")           
+            logging.info("NOTHING TO RUN")           
         else:
-            print("JOB PROGRESS")
+            logging.info("JOB PROGRESS")
             if self.runningJob.jobDone():
                 self.newRunningJob()
             if self.runningJob is not None:
@@ -93,19 +120,22 @@ class EventBasedSimulator:
                     self.higherPrioAwaked()
             
     def printSimulatorState(self):
-        print("TIMING" + str(self.timer))
-        print("RUNNING MODE")
+        logging.info("TIMING" + str(self.timer))
+        logging.info("RUNNING MODE")
         if self.runningJob is not None:
             self.runningJob.printMode()
         else:
-            print("NO RUNNING MODE")
-        print("READYLIST")
+            logging.info("NO RUNNING MODE")
+        logging.info("READYLIST")
         for elem in self.readyList:
                 elem.printMode()
-        print("BLOCKEDLIST")
+        logging.info("BLOCKEDLIST")
         for elem in self.blockedList:
                 elem.printMode()
-        print("----------------------------------------------------------------")
+        logging.info("----------------------------------------------------------------")
+
+    def checkModeValidation(self):
+        self.executeModeChoice(self.SolverGreedy)
 
     def checkEvents(self):
         deleteEvent = []
@@ -114,8 +144,20 @@ class EventBasedSimulator:
                 for action in event.actionList:
                     action.run()
                 deleteEvent.append(event)
+                self.checkModeValidation()
         for delEvent in deleteEvent:
             self.eventList.remove(delEvent)
+
+    def checkDeadlineMisses(self):
+        for m in self.readyList:
+            if m.checkDeadlineMiss(self.timer):
+                print("DEADLINE WURDE VERPASST at time: "+ str(self.timer))
+                exit()
+        
+        if self.runningJob:
+            if self.runningJob.checkDeadlineMiss(self.timer):
+                print("DEADLINE MISSED at time: " + str(self.timer))
+                exit()
 
 
     def tick(self):
@@ -125,3 +167,4 @@ class EventBasedSimulator:
         self.checkEvents()
         self.checkForReadyTasks()
         self.jobProgress()
+        self.checkDeadlineMisses()

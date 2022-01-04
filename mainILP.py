@@ -149,5 +149,3 @@ print(elapsed_time)
 #print(f"objective: {model.objective.value()}")
 
 
-#for var in model.variables():
-#    print(f"{var.name}: {var.value()}")

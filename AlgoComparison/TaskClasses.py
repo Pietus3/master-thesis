@@ -1,3 +1,5 @@
+import logging
+
 class Mode:
     
     def __init__(self,id,wcet, t, deadline, qos, priority, rdyTime):
@@ -11,27 +13,30 @@ class Mode:
         self.rdyTime = rdyTime
         self.progress= 0
         self.createdFollowingJob = False
+        self.taskID = int(self.id.split("|")[0])
     
     def work(self):
         self.progress = self.progress +1
 
     def jobDone(self):
-        if self.progress >= self.wcet:
-            print("JOB DONE")
-
         return self.progress >= self.wcet
 
-    
+    def checkDeadlineMiss(self,timer):
+        return timer > self.rdyTime+self.relDeadline
     
     def printMode(self):
+        logging.info("[ID:" + str(self.id)+", WCET: "+ str(self.wcet) + ", interTime: "+str(self.interArrival) + ", relDeadline: "+str(self.relDeadline) + ", QoS: " + str(self.qos) 
+            + ", Prior: "+ str(self.prior) +", rdyTime: "+ str(self.rdyTime) + ",Progress: "+str(self.progress)+ "]")
+
+    def printModeConsole(self):
         print("[ID:" + str(self.id)+", WCET: "+ str(self.wcet) + ", interTime: "+str(self.interArrival) + ", relDeadline: "+str(self.relDeadline) + ", QoS: " + str(self.qos) 
             + ", Prior: "+ str(self.prior) +", rdyTime: "+ str(self.rdyTime) + ",Progress: "+str(self.progress)+ "]")
-        
-        
+
+
      #   print("MODEID: " + str(self.id) + " \n Die WCET beträgt: "+ str(self.comp) + ", die inter-arrival Time beträgt: "
      #   + str(self.interArrival)+ ". die relative Deadline Beträgt: " + str(self.relDeadline) +". Der QoS-Value beträgt: " + str(self.qos)+". Die Priorität des Modes liegt bei: "+ str(self.prior))
     def printModeFormat(self):
-        returnValue =[self.comp,self.interArrival,self.relDeadline,self.q,self.p,self.id,self.utilazation]
+        returnValue =[self.wcet,self.interArrival,self.relDeadline,self.qos,self.prior,self.id,self.utilazation]
         return returnValue
         
 
@@ -55,7 +60,7 @@ class Task:
     def printTask(self):
         print("TASKID" + str(self.id))
         for mode in self.modeList:
-            mode.printParameters()
+            mode.printModeConsole()
 
     def checkConstrainedDeadlines(self):
         for mode in self.modeList:

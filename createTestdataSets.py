@@ -83,7 +83,7 @@ def createTestdata(cntTask,intModes, intQoS, floatWCET, maxPrio):
         for i in range(0,ranModes):
             wcet = round(random.uniform(0.001,floatWCET),3)
             relDeadline =round(random.uniform(wcet,1),3)
-            mode= Mode(str(k)+"t"+str(i),wcet,relDeadline,relDeadline,random.randint(0,intQoS),random.randint(0,maxPrio))
+            mode= Mode(str(i)+"|"+str(k),wcet,relDeadline,relDeadline,random.randint(0,intQoS),random.randint(0,maxPrio))
             modes.append(mode)
         
         tasks.append(Task(k,modes))
@@ -101,7 +101,7 @@ def createTestdataFixedNumberTask(cntTask,intModes, intQoS, floatWCET, maxPrio):
             for k in range(0,indCount):
                 wcet = round(random.uniform(0.001,floatWCET),3)
                 relDeadline =round(random.uniform(wcet,1),3)
-                mode= Mode(str(k)+"t"+str(i),wcet,relDeadline,relDeadline,random.randint(0,intQoS),random.randint(0,maxPrio))
+                mode= Mode(str(i)+"|"+str(k),wcet,relDeadline,relDeadline,random.randint(0,intQoS),random.randint(0,maxPrio))
                 modes.append(mode)
             indCount= indCount +1
             innerTasks.append(modes)
@@ -171,7 +171,10 @@ def createFixedSet(cntTask,intModes, intQoS, floatWCET, maxPrio):
 taskSets = []
 
 for i in range(0,20):
+    print(createFixedSet(5,5,15,0.6,7).printTaskSetFormat())
+
     taskSets.append(createFixedSet(5,5,15,0.6,7).printTaskSetFormat())
+    
 
 with open('testSets.test', 'wb') as f:
     pickle.dump(taskSets,f)

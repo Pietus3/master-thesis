@@ -21,4 +21,4 @@ def qbresolve(values):
     print("QB-RM?:" + str(value))
 
 
-qbresolve([0.4,0.1,0.1,0.05])
+qbresolve([0.4,0.1,0.1,0.1])
