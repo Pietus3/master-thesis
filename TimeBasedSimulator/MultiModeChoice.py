@@ -14,12 +14,9 @@ class ILP:
         xVariable = dict()
         weightsX= dict()
 
-        i=0
-
         allModes = []
 
         for task in self.taskSet:
-            k=0
             yVariable = dict()
             weightsY=dict()
             for m in task.modeList:
@@ -28,11 +25,9 @@ class ILP:
                 nameVar = m.id.split("|")
                 point = LpVariable(name=m.id,lowBound = 0,cat="Binary")
                 yVariable[nameVar[1]]= point
-                weightsY[nameVar[1]] = m.qos# finde Value Stell
-                k = k+1
+                weightsY[nameVar[1]] = m.qos
             xVariable[nameVar[0]]=yVariable
             weightsX[nameVar[0]] = weightsY
-            i=i+1
 
         model+= lpSum(lpSum(xVariable[m.id.split("|")[0]][m.id.split("|")[1]]*weightsX[m.id.split("|")[0]][m.id.split("|")[1]] for m in allModes))
 
@@ -40,23 +35,13 @@ class ILP:
         for t in self.taskSet:
             model += lpSum(xVariable[m.id.split("|")[0]][m.id.split("|")[1]] for m in t.modeList)==1
             i = i+1
-        modesVisit = []
 
-        for task in self.taskSet:
-            for mode in task.modeList: 
-                modesVisit.append(mode)
-                model += lpSum(xVariable[m.id.split("|")[0]][m.id.split("|")[1]] * m.utilazation for m in modesVisit) <=1
-            
+        model += lpSum(lpSum(xVariable[m.id.split("|")[0]][m.id.split("|")[1]] * m.utilazation for m in task.modeList) for task in self.taskSet) <=1
 
-        status  =model.solve(PULP_CBC_CMD(msg=False))
 
-        #print(f"status: {model.status}, {LpStatus[model.status]}")
-
-        #for var in model.variables():
-        #    print(f"{var.name}: {var.value()}")
-        
+        status  = model.solve(PULP_CBC_CMD(msg=False))
+      
         if model.status:
-            logging.info("Es existiert eine optimale Lösung")
             choosenModes =[]
             for var in model.variables():
                 if var.value():
@@ -66,7 +51,7 @@ class ILP:
 
 class Greedy:
     def __init__(self,taskSet):
-        self.taskSet = taskSet
+        self.taskSet = taskSet.copy()
     
     def generate(self):
         for task in self.taskSet:

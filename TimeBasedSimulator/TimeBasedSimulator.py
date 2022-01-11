@@ -4,7 +4,7 @@ from TaskClasses import Mode
 from MultiModeChoice import ILP,Greedy
 
 
-class EventBasedSimulator:
+class TimeBasedSimulator:
     
     def __init__(self,tasks,events):
         self.taskList = tasks
@@ -23,16 +23,7 @@ class EventBasedSimulator:
         else:
             Solver= ILP(self.activeTasks)
 
-       # print("PRE ALGO")
-       # for element in self.activeTasks:
-       #     element.printTask()
-
-        chosenModes = Solver.generate()
-
-       # print("AFTER ALGO")
-       # for element in self.activeTasks:
-       #     element.printTask()
-        
+        chosenModes = Solver.generate()      
 
         for id in chosenModes:
             splittedID = id.split("|")
@@ -60,13 +51,13 @@ class EventBasedSimulator:
         if self.readyList:
             newRunningJob = self.readyList.pop(0)
             self.runningJob = newRunningJob
-            #IF Abfrage für den Fall das Task vorher verdrängt wurde, ansonsten zuviele Following Jobs
             
+            #IF Abfrage für den Fall das Task vorher verdrängt wurde, ansonsten zuviele Following Jobs
             if not self.runningJob.createdFollowingJob:
                 newMode = self.taskList[newRunningJob.taskID].getActiveMode()
                 newModeInstance = Mode(newMode.id,newMode.wcet,
                     newMode.interArrival,newMode.relDeadline,
-                    newMode.qos,newMode.prior,0)
+                    newMode.qos,newMode.prior,0,newMode.controlInstance)
                 newModeInstance.rdyTime = newRunningJob.rdyTime + newRunningJob.interArrival
 
                 self.blockedList.append(newModeInstance)
@@ -83,7 +74,7 @@ class EventBasedSimulator:
         self.runningJob = newRunningJob
         self.blockedList.append(Mode(newRunningJob.id,newRunningJob.wcet,
                 newRunningJob.interArrival,newRunningJob.relDeadline,
-                newRunningJob.qos,newRunningJob.prior,self.timer+newRunningJob.interArrival))
+                newRunningJob.qos,newRunningJob.prior,self.timer+newRunningJob.interArrival,newRunningJob.controlInstance))
         self.blockedList = sorted(self.blockedList, key=lambda x: x.rdyTime)
 
     def getRunningJob(self):
@@ -97,7 +88,9 @@ class EventBasedSimulator:
             if self.runningJob.jobDone():
                 self.newRunningJob()
             if self.runningJob is not None:
-                self.runningJob.work()
+                return self.runningJob.work()
+        
+        return False
 
     def checkForReadyTasks(self):
         added = False
@@ -138,33 +131,36 @@ class EventBasedSimulator:
         self.executeModeChoice(self.SolverGreedy)
 
     def checkEvents(self):
+        logging.info("---------------EventChanges---------------------------")
+
         deleteEvent = []
         for event in self.eventList:
-            if event.timestamp ==self.timer:
+            if event.timestamp <= self.timer:
                 for action in event.actionList:
                     action.run()
                 deleteEvent.append(event)
-                self.checkModeValidation()
+                
         for delEvent in deleteEvent:
             self.eventList.remove(delEvent)
+        
+        self.checkModeValidation()
 
     def checkDeadlineMisses(self):
         for m in self.readyList:
             if m.checkDeadlineMiss(self.timer):
-                print("DEADLINE WURDE VERPASST at time: "+ str(self.timer))
+                logging.info("DEADLINE WURDE VERPASST at time: "+ str(self.timer))
                 exit()
         
         if self.runningJob:
             if self.runningJob.checkDeadlineMiss(self.timer):
-                print("DEADLINE MISSED at time: " + str(self.timer))
+                logging.info("DEADLINE MISSED at time: " + str(self.timer))
                 exit()
 
 
     def tick(self):
         self.printSimulatorState()
-
         self.timer = self.timer + 1
-        self.checkEvents()
         self.checkForReadyTasks()
-        self.jobProgress()
+        if self.jobProgress():
+            self.checkEvents()
         self.checkDeadlineMisses()

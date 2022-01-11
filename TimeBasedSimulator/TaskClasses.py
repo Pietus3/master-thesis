@@ -2,7 +2,7 @@ import logging
 
 class Mode:
     
-    def __init__(self,id,wcet, t, deadline, qos, priority, rdyTime):
+    def __init__(self,id,wcet, t, deadline, qos, priority, rdyTime,controlInstance):
         self.wcet = wcet
         self.interArrival = t 
         self.relDeadline = deadline
@@ -14,9 +14,19 @@ class Mode:
         self.progress= 0
         self.createdFollowingJob = False
         self.taskID = int(self.id.split("|")[0])
+        self.controlInstance = controlInstance
+
+    def makeControlInstance(self):
+        self.controlInstance = True
+
     
     def work(self):
-        self.progress = self.progress +1
+        self.progress = self.progress + 1
+        if self.controlInstance and self.progress == self.wcet:
+            return True
+        else:
+            return False
+
 
     def jobDone(self):
         return self.progress >= self.wcet
@@ -31,10 +41,7 @@ class Mode:
     def printModeConsole(self):
         print("[ID:" + str(self.id)+", WCET: "+ str(self.wcet) + ", interTime: "+str(self.interArrival) + ", relDeadline: "+str(self.relDeadline) + ", QoS: " + str(self.qos) 
             + ", Prior: "+ str(self.prior) +", rdyTime: "+ str(self.rdyTime) + ",Progress: "+str(self.progress)+ "]")
-
-
-     #   print("MODEID: " + str(self.id) + " \n Die WCET beträgt: "+ str(self.comp) + ", die inter-arrival Time beträgt: "
-     #   + str(self.interArrival)+ ". die relative Deadline Beträgt: " + str(self.relDeadline) +". Der QoS-Value beträgt: " + str(self.qos)+". Die Priorität des Modes liegt bei: "+ str(self.prior))
+    
     def printModeFormat(self):
         returnValue =[self.comp,self.interArrival,self.relDeadline,self.q,self.p,self.id,self.utilazation]
         return returnValue
@@ -42,13 +49,16 @@ class Mode:
 
 
 class Task:
-    def __init__(self, id, modes,active):
+    def __init__(self, id, modes,active,controlInstance):
         self.id = id
         self.modeList = []
         self.isActive = active
         self.activeMode = 0
+        self.controlInstance = controlInstance
 
         for mode in modes:
+            if self.controlInstance:
+                mode.makeControlInstance()
             self.modeList.append(mode)
 
     def getActiveMode(self):

@@ -1,5 +1,5 @@
 from os import remove
-from EventBasedSimulator import EventBasedSimulator
+from TimeBasedSimulator import TimeBasedSimulator
 from TaskClasses import Mode
 import logging
 
@@ -48,7 +48,7 @@ class ChangeStat(Action):
 
             infos = sim.taskList[self.taskId].getActiveMode()
 
-            newMode = Mode(infos.id,infos.wcet,infos.interArrival,infos.relDeadline,infos.qos,infos.prior,0)
+            newMode = Mode(infos.id,infos.wcet,infos.interArrival,infos.relDeadline,infos.qos,infos.prior,0,infos.controlInstance)
             newMode.rdyTime = sim.timer
             newMode.progress = 0
 

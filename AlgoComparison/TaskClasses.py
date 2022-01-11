@@ -32,9 +32,6 @@ class Mode:
         print("[ID:" + str(self.id)+", WCET: "+ str(self.wcet) + ", interTime: "+str(self.interArrival) + ", relDeadline: "+str(self.relDeadline) + ", QoS: " + str(self.qos) 
             + ", Prior: "+ str(self.prior) +", rdyTime: "+ str(self.rdyTime) + ",Progress: "+str(self.progress)+ "]")
 
-
-     #   print("MODEID: " + str(self.id) + " \n Die WCET beträgt: "+ str(self.comp) + ", die inter-arrival Time beträgt: "
-     #   + str(self.interArrival)+ ". die relative Deadline Beträgt: " + str(self.relDeadline) +". Der QoS-Value beträgt: " + str(self.qos)+". Die Priorität des Modes liegt bei: "+ str(self.prior))
     def printModeFormat(self):
         returnValue =[self.wcet,self.interArrival,self.relDeadline,self.qos,self.prior,self.id,self.utilazation]
         return returnValue

@@ -6,22 +6,22 @@ import numpy as np
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
-with open('C:/Users/Jan/Desktop/AlgoRecreated/simdata/FixedModes/5Modes/evaluationILP0.data', "rb") as fp:   # Unpickling
+with open('C:/Users/Jan/Desktop/AlgoRecreated/simdata/FixedTask/5Tasks/evaluationILP0.data', "rb") as fp:   # Unpickling
     evalutationILP5 = pickle.load(fp)
 
-with open('C:/Users/Jan/Desktop/AlgoRecreated/simdata/FixedModes/5Modes/evaluationGreedy0.data', "rb") as fp:   # Unpickling
+with open('C:/Users/Jan/Desktop/AlgoRecreated/simdata/FixedTask/5Tasks/evaluationGreedy0.data', "rb") as fp:   # Unpickling
     evalutationGreedy5 = pickle.load(fp)
 
-with open('C:/Users/Jan/Desktop/AlgoRecreated/simdata/FixedModes/7Modes/evaluationILP0.data', "rb") as fp:   # Unpickling
+with open('C:/Users/Jan/Desktop/AlgoRecreated/simdata/FixedTask/7Tasks/evaluationILP0.data', "rb") as fp:   # Unpickling
     evalutationILP7 = pickle.load(fp)
 
-with open('C:/Users/Jan/Desktop/AlgoRecreated/simdata/FixedModes/7Modes/evaluationGreedy0.data', "rb") as fp:   # Unpickling
+with open('C:/Users/Jan/Desktop/AlgoRecreated/simdata/FixedTask/7Tasks/evaluationGreedy0.data', "rb") as fp:   # Unpickling
     evalutationGreedy7 = pickle.load(fp)
 
-with open('C:/Users/Jan/Desktop/AlgoRecreated/simdata/FixedModes/10Modes/evaluationILP0.data', "rb") as fp:   # Unpickling
+with open('C:/Users/Jan/Desktop/AlgoRecreated/simdata/FixedTask/10Tasks/evaluationILP0.data', "rb") as fp:   # Unpickling
     evalutationILP10 = pickle.load(fp)
 
-with open('C:/Users/Jan/Desktop/AlgoRecreated/simdata/FixedModes/10Modes/evaluationGreedy0.data', "rb") as fp:   # Unpickling
+with open('C:/Users/Jan/Desktop/AlgoRecreated/simdata/FixedTask/10Tasks/evaluationGreedy0.data', "rb") as fp:   # Unpickling
     evalutationGreedy10 = pickle.load(fp)
 
 dataListILPTime5 =[]
@@ -45,37 +45,37 @@ counter=0
 
 for elem1, elem2, elem3, elem4, elem5 in evalutationILP5:
     #if elem5 == 1:
-        dataListILPTime5.append((elem3, elem2,counter)) 
+        dataListILPTime5.append((elem4, elem2,counter)) 
         dataListILPQOS5.append((elem4, elem1,counter))
         counter=counter+1
 
 counter=0
 for elem1, elem2, elem3, elem4, elem5 in evalutationGreedy5:
     #if elem5 == 1:
-        dataListGreedyTime5.append((elem3, elem2,counter)) 
+        dataListGreedyTime5.append((elem4, elem2,counter)) 
         dataListGreedyQOS5.append((elem4, elem1,counter))
         counter=counter+1
 
 
 for elem1, elem2, elem3, elem4, elem5 in evalutationILP7:
     #if elem5 == 1:
-        dataListILPTime7.append((elem3, elem2)) 
-        dataListILPQOS7.append((elem3, elem1))
+        dataListILPTime7.append((elem4, elem2)) 
+        dataListILPQOS7.append((elem4, elem1))
 
 for elem1, elem2, elem3, elem4, elem5 in evalutationGreedy7:
     #if elem5 == 1:
-        dataListGreedyTime7.append((elem3, elem2)) 
-        dataListGreedyQOS7.append((elem3, elem1))
+        dataListGreedyTime7.append((elem4, elem2)) 
+        dataListGreedyQOS7.append((elem4, elem1))
 
 for elem1, elem2, elem3, elem4, elem5 in evalutationILP10:
     #if elem5 == 1:
-        dataListILPTime10.append((elem3, elem2)) 
-        dataListILPQOS10.append((elem3, elem1))
+        dataListILPTime10.append((elem4, elem2)) 
+        dataListILPQOS10.append((elem4, elem1))
 
 for elem1, elem2, elem3, elem4, elem5 in evalutationGreedy10:
     #if elem5 == 1:
-        dataListGreedyTime10.append((elem3, elem2)) 
-        dataListGreedyQOS10.append((elem3, elem1))
+        dataListGreedyTime10.append((elem4, elem2)) 
+        dataListGreedyQOS10.append((elem4, elem1))
 
 
 averageResponseTimeILP5 = dict()
